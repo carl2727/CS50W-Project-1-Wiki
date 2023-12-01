@@ -1,5 +1,6 @@
 from django.shortcuts import render
 import markdown
+import os
 from . import util
 
 
@@ -24,5 +25,14 @@ def search(request):
     query = request.GET.get('q')
     results = []
 
-    if query
+    if query:
+        entries_dir = 'entries'
+        for filename in os.listdir(entries_dir):
+            if filename.endswith('.md'):
+                with open(os.path.join(entries_dir, filename), 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    if query.lower() in content.lower():
+                        results.append(filename)
+
+    return render(request, 'encyclopedia/search_results.html', {'results': results, 'query': query})
     
