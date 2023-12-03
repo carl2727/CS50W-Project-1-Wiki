@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'markdownify.apps.MarkdownifyConfig',
+    'markdownify',
     'encyclopedia',
     'django.contrib.admin',
     'django.contrib.auth',

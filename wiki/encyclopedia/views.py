@@ -1,5 +1,4 @@
 from django.shortcuts import render
-import markdown
 import os
 from . import util
 
@@ -34,5 +33,8 @@ def search(request):
                     if query.lower() in content.lower():
                         results.append(filename)
 
-    return render(request, 'encyclopedia/search_results.html', {'results': results, 'query': query})
+    return render(request, "encyclopedia/search_results.html", {'results': results, 'query': query})
+
+def create(request):
+    return render(request, "encyclopedia/create.html")
     
