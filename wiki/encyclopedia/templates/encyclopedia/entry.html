@@ -4,5 +4,5 @@
 {% block body %}
 
 {{ content|markdownify }}
-
+<br><a href="{% url 'edit' entry=entry %}">Edit</a>
 {% endblock %}

@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import os
+import random
 from . import util
 
+entries_dir = 'entries'
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -11,7 +13,8 @@ def index(request):
 def entry(request, entry):
     list_entries = util.list_entries()
     if entry not in list_entries:
-        return render(request, "encyclopedia/error.html")
+        error_message = "This page doesn't exist"
+        return render(request, "encyclopedia/error.html", { 'error_message': error_message})
     
     else:
         content = util.get_entry(entry)
@@ -25,7 +28,6 @@ def search(request):
     results = []
 
     if query:
-        entries_dir = 'entries'
         for filename in os.listdir(entries_dir):
             if filename.endswith('.md'):
                 with open(os.path.join(entries_dir, filename), 'r', encoding='utf-8') as file:
@@ -36,5 +38,35 @@ def search(request):
     return render(request, "encyclopedia/search_results.html", {'results': results, 'query': query})
 
 def create(request):
-    return render(request, "encyclopedia/create.html")
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            content = request.POST.get('content')
+            list_entries = util.list_entries()
+            if title.lower() in [entry.lower() for entry in list_entries]:
+                error_message = "This page already exists"
+                return render(request, "encyclopedia/error.html", {'error_message': error_message})
+            util.save_entry(title, content)
+            return redirect('entry', entry=title)
+        return render(request, "encyclopedia/create.html")
+
+def edit(request, entry):
+    list_entries = util.list_entries()
+    if entry not in list_entries:
+        error_message = "This page doesn't exist"
+        return render(request, "encyclopedia/error.html", { 'error_message': error_message})
     
+    else:
+        content = util.get_entry(entry)
+        return render(request, "encyclopedia/edit.html", {       
+            "entry": entry,
+            "content": content
+        })
+
+def rand_entry(request):
+    list_entries = util.list_entries()
+    random_entry = random.choice(list_entries)
+    content = util.get_entry(random_entry)
+    return render(request, "encyclopedia/entry.html", {       
+            "entry": random_entry,
+            "content": content
+        })
