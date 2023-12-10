@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import markdown2
 import os
 import random
 from . import util
@@ -40,10 +41,14 @@ def search(request):
 def create(request):
         if request.method == 'POST':
             title = request.POST.get('title')
-            content = request.POST.get('content')
+            content_raw = request.POST.get('content')
+            content = markdown2.markdown(content_raw)
             list_entries = util.list_entries()
             if title.lower() in [entry.lower() for entry in list_entries]:
-                error_message = "This page already exists"
+                error_message = "Error - This page already exists"
+                return render(request, "encyclopedia/error.html", {'error_message': error_message})
+            if not title:
+                error_message = "Error - Please add a title"
                 return render(request, "encyclopedia/error.html", {'error_message': error_message})
             util.save_entry(title, content)
             return redirect('entry', entry=title)
@@ -52,7 +57,7 @@ def create(request):
 def edit(request, entry):
     list_entries = util.list_entries()
     if entry not in list_entries:
-        error_message = "This page doesn't exist"
+        error_message = "Error - This page doesn't exist"
         return render(request, "encyclopedia/error.html", { 'error_message': error_message})
     
     else:
