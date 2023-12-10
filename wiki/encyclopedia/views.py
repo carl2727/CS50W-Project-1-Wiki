@@ -56,17 +56,22 @@ def create(request):
 
 def edit(request, entry):
     list_entries = util.list_entries()
-    if entry not in list_entries:
-        error_message = "Error - This page doesn't exist"
-        return render(request, "encyclopedia/error.html", { 'error_message': error_message})
-    
-    else:
+    if request.method == 'GET':
         content = util.get_entry(entry)
         return render(request, "encyclopedia/edit.html", {       
             "entry": entry,
             "content": content
         })
-
+    elif request.method == 'POST':
+            content_raw = request.POST.get('content')
+            content = markdown2.markdown(content_raw)
+            util.save_entry(entry, content)
+            return redirect ('entry', entry=entry)
+        
+    elif entry not in list_entries:
+        error_message = "Error - This page doesn't exist"
+        return render(request, "encyclopedia/error.html", { 'error_message': error_message})
+    
 def rand_entry(request):
     list_entries = util.list_entries()
     random_entry = random.choice(list_entries)
